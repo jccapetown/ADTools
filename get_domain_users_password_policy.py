@@ -2,7 +2,8 @@ import subprocess
 
 proc = subprocess.Popen(['net', 'user','/domain'],
                         stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE)
+                        stdout=subprocess.PIPE,
+                        shell=False)
 stdout_value = proc.communicate()[0]
 
 records = stdout_value.split('\r')
@@ -18,12 +19,22 @@ for users in records:
 
 #we now have all the users
 #print userlist
-
-#now lets get the use password config            
+#save userlist
+f = open('domainusers.txt', 'w')            
 for user in userlist:
+    f.write('%s \n' % user)
+f.close()
+
+
+#now lets get the use password config
+f = open('passwordinfo.txt', 'w')
+
+for user in userlist:
+    print "Checking user : %s" % user
     proc = subprocess.Popen(['net', 'user',user,'/domain'],
                         stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE)
+                        stdout=subprocess.PIPE,
+                        shell=False)
     stdout_value = proc.communicate()[0]
     #print stdout_value
     
@@ -44,4 +55,7 @@ for user in userlist:
                ("Logon hours allowed" in attribs)or\
                ("Global Group memberships" in attribs):
                 print user,'->', attribs.strip()
-    raw_input('Enter for next...')
+                f.write('%s-> %s \n' % (user,attribs.strip())  )
+f.close()
+    
+
